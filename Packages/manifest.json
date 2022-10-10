@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "com.adrenak.univoice": "2.0.0",
+    "com.adrenak.univoice": "2.0.1",
+    "com.adrenak.univoice.pun2network" : "1.0.0",
     "com.adrenak.univoice.airpeernetwork": "2.0.0",
     "com.adrenak.univoice.audiosourceoutput": "1.0.1",
     "com.adrenak.univoice.telepathynetwork": "1.0.0",

@@ -1,13 +1,19 @@
-using UnityEngine;
 using System.Linq;
-using System.Collections.Generic;
-using UnityEngine.UI;
-using Adrenak.UniVoice.UniMicInput;
-using Adrenak.UniVoice.AudioSourceOutput;
-using Adrenak.UniVoice.TelepathyNetwork;
 using System.Net.Sockets;
 using System.Net;
+using System.Collections.Generic;
+
+using UnityEngine;
+using UnityEngine.UI;
+
+using Adrenak.UniVoice.UniMicInput;
+using Adrenak.UniVoice.AudioSourceOutput;
+
+using Adrenak.UniVoice.TelepathyNetwork;
 using Adrenak.UniVoice.AirPeerNetwork;
+using Adrenak.UniVoice.PUN2Network;
+using Photon.Pun;
+using UnityEngine.Android;
 
 namespace Adrenak.UniVoice.Samples {
     public class GroupVoiceCallSample : MonoBehaviour {
@@ -31,13 +37,9 @@ namespace Adrenak.UniVoice.Samples {
         Dictionary<short, PeerView> peerViews = new Dictionary<short, PeerView>();
 
         void Start() {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            if (!AndroidPermissionsManager.IsPermissionGranted("android.permission.RECORD_AUDIO")) {
-                AndroidPermissionsManager.RequestPermission(
-                    "android.permission.RECORD_AUDIO",
-                    new AndroidPermissionCallback(x => { }, y => Application.Quit())
-                );
-            }
+#if UNITY_ANDROID 
+            if (!Permission.HasUserAuthorizedPermission("android.permission.RECORD_AUDIO"))
+                Permission.RequestUserPermission("android.permission.RECORD_AUDIO");
 #endif
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             InitializeInput();
@@ -62,7 +64,8 @@ namespace Adrenak.UniVoice.Samples {
 
         void InitializeAgent() {
             agent = new ChatroomAgent(
-                UniVoiceTelepathyNetwork.New(8987), 
+                UniVoicePUN2NetworkEmbedded.New(1),
+                // UniVoiceTelepathyNetwork.New(8987), 
                 // TIP: Try swapping the above network with UniVoiceAirPeerNetwork below
                 //new InbuiltChatroomAgentFactory("ws://167.71.17.13:11000").Create();
 
