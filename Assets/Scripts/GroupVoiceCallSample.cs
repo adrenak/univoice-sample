@@ -9,11 +9,9 @@ using UnityEngine.UI;
 using Adrenak.UniVoice.UniMicInput;
 using Adrenak.UniVoice.AudioSourceOutput;
 
-using Adrenak.UniVoice.TelepathyNetwork;
 using Adrenak.UniVoice.AirPeerNetwork;
-using Adrenak.UniVoice.PUN2Network;
-using Photon.Pun;
 using UnityEngine.Android;
+using System.Collections;
 
 namespace Adrenak.UniVoice.Samples {
     public class GroupVoiceCallSample : MonoBehaviour {
@@ -36,15 +34,21 @@ namespace Adrenak.UniVoice.Samples {
         ChatroomAgent agent;
         Dictionary<short, PeerView> peerViews = new Dictionary<short, PeerView>();
 
-        void Start() {
-#if UNITY_ANDROID 
-            if (!Permission.HasUserAuthorizedPermission("android.permission.RECORD_AUDIO"))
-                Permission.RequestUserPermission("android.permission.RECORD_AUDIO");
-#endif
+        IEnumerator Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            Debug.Log("Local IP Address: " + GetLocalIPv4Address());
+
+#if UNITY_ANDROID 
+            while(!Permission.HasUserAuthorizedPermission("android.permission.RECORD_AUDIO")) {
+                Permission.RequestUserPermission("android.permission.RECORD_AUDIO");
+                yield return new WaitForSeconds(1);
+            }
+#endif
+            yield return null;
+
             InitializeInput();
             InitializeAgent();
-            Debug.Log(GetLocalIPv4Address());
+
             menuGO.SetActive(true);
             chatroomGO.SetActive(false);
             muteSelfToggle.SetIsOnWithoutNotify(agent.MuteSelf);
@@ -64,18 +68,17 @@ namespace Adrenak.UniVoice.Samples {
 
         void InitializeAgent() {
             agent = new ChatroomAgent(
-                UniVoicePUN2NetworkEmbedded.New(1),
-                // UniVoiceTelepathyNetwork.New(8987), 
-                // TIP: Try swapping the above network with UniVoiceAirPeerNetwork below
-                //new InbuiltChatroomAgentFactory("ws://167.71.17.13:11000").Create();
-
+                // This IP address is one I am running on a Digital ocean droplet. While I try to
+                // keep it online, it may go down. 
+                // If you are unable to connect, use the intructions here to host your own server:
+                // https://github.com/adrenak/vshop-server
+                new UniVoiceAirPeerNetwork("ws://24.199.109.229:12776"),
                 new UniVoiceUniMicInput(0, 16000, 100),
                 new UniVoiceAudioSourceOutput.Factory()
             );
 
             agent.Network.OnCreatedChatroom += () => {
-                ShowMessage($"Chatroom created!\n" +
-                $" You are Peer ID 0");
+                ShowMessage($"Chatroom created!\nYou are Peer ID {agent.Network.OwnID}");
                 menuGO.SetActive(false);
                 chatroomGO.SetActive(true);
             };
@@ -197,7 +200,6 @@ namespace Adrenak.UniVoice.Samples {
         }
 
         void ExitChatroom() {
-            Debug.Log(agent.CurrentMode);
             if (agent.CurrentMode == ChatroomAgentMode.Host)
                 agent.Network.CloseChatroom();
             else if (agent.CurrentMode == ChatroomAgentMode.Guest)

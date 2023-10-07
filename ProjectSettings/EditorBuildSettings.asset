@@ -5,10 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/GroupVoiceCallSample.unity
     guid: 112506fba9c2d954d9eec18ab175ec08
-  - enabled: 1
-    path: Assets/Scenes/GroupVoiceCallSample-Photon.unity
-    guid: d086f495b665d41408ebe1812f218c36
   m_configObjects: {}
