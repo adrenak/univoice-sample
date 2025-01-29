@@ -1,3 +1,5 @@
+### ⚠️ This repository has been archived as samples have been moved to the [main UniVoice repository](https://github.com/adrenak/univoice)
+
 # UniVoice Sample
 
 This repo contains a simple group voice chat application using UniVoice. To [learn more about UniVoice](https://www.github.com/adrenak/univoice)  
